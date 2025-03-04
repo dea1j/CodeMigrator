@@ -81,8 +81,47 @@ namespace Core
                             { "Items", string.Join(", ", items) },
                             { "SelectedItem", selectedItem }
                         }
-                        });
-                    }
+                    });
+                }
+
+                // Handle TreeView
+                if (controlType == "TreeView")
+                {
+                    var nodes = FindTreeViewNodes(assignment);
+                    var selectedNode = FindSelectedNode(assignment);
+
+                    controls.Add(new ControlInfo
+                    {
+                        Name = controlName,
+                        Type = controlType,
+                        Parent = parentContainer,
+                        Properties = new Dictionary<string, string>
+                        {
+                            { "Nodes", string.Join(", ", nodes) },
+                            { "SelectedNode", selectedNode }
+                        }
+                    });
+                }
+
+                if (controlType == "ListView")
+                {
+                    var items = FindListViewItems(assignment);
+                    var columns = FindListViewColumns(assignment);
+                    var selectedItem = FindSelectedItem(assignment);
+
+                    controls.Add(new ControlInfo
+                    {
+                        Name = controlName,
+                        Type = controlType,
+                        Parent = parentContainer,
+                        Properties = new Dictionary<string, string>
+                        {
+                            { "Items", string.Join(", ", items) },
+                            { "Columns", string.Join(", ", columns) },
+                            { "SelectedItem", selectedItem }
+                        }
+                    });
+                }
                 else
                 {
                     controls.Add(new ControlInfo
@@ -190,6 +229,83 @@ namespace Core
                 .FirstOrDefault(a => a.Left.ToString().EndsWith(".DataSource"));
 
             return dataSourceAssignment?.Right.ToString() ?? "UnknownDataSource";
+        }
+
+        private static List<string> FindTreeViewNodes(AssignmentExpressionSyntax assignment)
+        {
+            var nodes = new List<string>();
+
+            // Find TreeView.Nodes.Add calls (e.g., "treeView1.Nodes.Add("Node 1");")
+            var nodeAdditions = assignment.Parent?
+                .DescendantNodes()
+                .OfType<InvocationExpressionSyntax>()
+                .Where(i => i.Expression.ToString().EndsWith(".Nodes.Add"));
+
+            foreach (var addition in nodeAdditions ?? Enumerable.Empty<InvocationExpressionSyntax>())
+            {
+                var node = addition.ArgumentList.Arguments.FirstOrDefault()?.ToString().Trim('"');
+                if (!string.IsNullOrEmpty(node))
+                {
+                    nodes.Add(node);
+                }
+            }
+
+            return nodes;
+        }
+
+        private static List<string> FindListViewItems(AssignmentExpressionSyntax assignment)
+        {
+            var items = new List<string>();
+
+            // Find ListView.Items.Add calls (e.g., "listView1.Items.Add("Item 1");")
+            var itemAdditions = assignment.Parent?
+                .DescendantNodes()
+                .OfType<InvocationExpressionSyntax>()
+                .Where(i => i.Expression.ToString().EndsWith(".Items.Add"));
+
+            foreach (var addition in itemAdditions ?? Enumerable.Empty<InvocationExpressionSyntax>())
+            {
+                var item = addition.ArgumentList.Arguments.FirstOrDefault()?.ToString().Trim('"');
+                if (!string.IsNullOrEmpty(item))
+                {
+                    items.Add(item);
+                }
+            }
+
+            return items;
+        }
+
+        private static List<string> FindListViewColumns(AssignmentExpressionSyntax assignment)
+        {
+            var columns = new List<string>();
+
+            // Find ListView.Columns.Add calls (e.g., "listView1.Columns.Add("Column 1");")
+            var columnAdditions = assignment.Parent?
+                .DescendantNodes()
+                .OfType<InvocationExpressionSyntax>()
+                .Where(i => i.Expression.ToString().EndsWith(".Columns.Add"));
+
+            foreach (var addition in columnAdditions ?? Enumerable.Empty<InvocationExpressionSyntax>())
+            {
+                var column = addition.ArgumentList.Arguments.FirstOrDefault()?.ToString().Trim('"');
+                if (!string.IsNullOrEmpty(column))
+                {
+                    columns.Add(column);
+                }
+            }
+
+            return columns;
+        }
+
+        private static string FindSelectedNode(AssignmentExpressionSyntax assignment)
+        {
+            // Find SelectedNode assignment (e.g., "treeView1.SelectedNode = "Node 1";")
+            var selectedNodeAssignment = assignment.Parent?
+                .DescendantNodes()
+                .OfType<AssignmentExpressionSyntax>()
+                .FirstOrDefault(a => a.Left.ToString().EndsWith(".SelectedNode"));
+
+            return selectedNodeAssignment?.Right.ToString() ?? "UnknownSelectedNode";
         }
     }
 

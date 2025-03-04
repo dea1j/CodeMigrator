@@ -28,6 +28,8 @@ namespace Core
             - Combine all controls into a single Blazor component.
             - Preserve the hierarchy of controls (e.g., buttons inside panels).
             - For ComboBox controls, use a Blazor Dropdown component with items and selected item binding.
+            - For TreeView controls, use a Blazor TreeView component with nodes and selected node binding.
+            - For ListView controls, use a Blazor Table or List component with items, columns, and selected item binding.
             - Do not include any explanations, comments, or boilerplate code in the output.
             - Generate only the Razor component code.
             - Don't take this as a tutorial. It is a real project.
