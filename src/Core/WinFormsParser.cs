@@ -103,6 +103,7 @@ namespace Core
                     });
                 }
 
+                // Handle ListView
                 if (controlType == "ListView")
                 {
                     var items = FindListViewItems(assignment);
@@ -119,6 +120,120 @@ namespace Core
                             { "Items", string.Join(", ", items) },
                             { "Columns", string.Join(", ", columns) },
                             { "SelectedItem", selectedItem }
+                        }
+                    });
+                }
+
+                // Handle TabControl
+                if (controlType == "TabControl")
+                {
+                    var tabs = FindTabControlTabs(assignment);
+                    var selectedTab = FindSelectedTab(assignment);
+
+                    controls.Add(new ControlInfo
+                    {
+                        Name = controlName,
+                        Type = controlType,
+                        Parent = parentContainer,
+                        Properties = new Dictionary<string, string>
+                        {
+                            { "Tabs", string.Join(", ", tabs) },
+                            { "SelectedTab", selectedTab }
+                        }
+                    });
+                }
+
+                // Handle DateTimePicker
+                if (controlType == "DateTimePicker")
+                {
+                    var value = FindDateTimePickerValue(assignment);
+                    var format = FindDateTimePickerFormat(assignment);
+
+                    controls.Add(new ControlInfo
+                    {
+                        Name = controlName,
+                        Type = controlType,
+                        Parent = parentContainer,
+                        Properties = new Dictionary<string, string>
+                        {
+                            { "Value", value },
+                            { "Format", format }
+                        }
+                     });
+                }
+
+                // Handle TextBox
+                if (controlType == "TextBox")
+                {
+                    var text = FindTextBoxText(assignment);
+                    var isMultiline = FindTextBoxMultiline(assignment);
+
+                    controls.Add(new ControlInfo
+                    {
+                        Name = controlName,
+                        Type = controlType,
+                        Parent = parentContainer,
+                        Properties = new Dictionary<string, string>
+                        {
+                            { "Text", text },
+                            { "Multiline", isMultiline.ToString() }
+                        }
+                    });
+                }
+
+                // Handle CheckBox
+                if (controlType == "CheckBox")
+                {
+                    var isChecked = FindCheckBoxChecked(assignment);
+                    var text = FindCheckBoxText(assignment);
+
+                    controls.Add(new ControlInfo
+                    {
+                        Name = controlName,
+                        Type = controlType,
+                        Parent = parentContainer,
+                        Properties = new Dictionary<string, string>
+                        {
+                            { "Checked", isChecked.ToString() },
+                            { "Text", text }
+                        }
+                    });
+                }
+
+                // Handle RadioButton
+                if (controlType == "RadioButton")
+                {
+                    var isChecked = FindRadioButtonChecked(assignment);
+                    var text = FindRadioButtonText(assignment);
+
+                    controls.Add(new ControlInfo
+                    {
+                        Name = controlName,
+                        Type = controlType,
+                        Parent = parentContainer,
+                        Properties = new Dictionary<string, string>
+                        {
+                            { "Checked", isChecked.ToString() },
+                            { "Text", text }
+                        }
+                    });
+                }
+
+                // Handle ProgressBar
+                if (controlType == "ProgressBar")
+                {
+                    var value = FindProgressBarValue(assignment);
+                    var maximum = FindProgressBarMaximum(assignment);
+
+                    controls.Add(new ControlInfo
+                    {
+                        Name = controlName,
+                        Type = controlType,
+                        Parent = parentContainer,
+                        Properties = new Dictionary<string, string>
+                        {
+                            { "Value", value.ToString() },
+                            { "Maximum", maximum.ToString() }
                         }
                     });
                 }
@@ -307,6 +422,150 @@ namespace Core
 
             return selectedNodeAssignment?.Right.ToString() ?? "UnknownSelectedNode";
         }
+
+        private static List<string> FindTabControlTabs(AssignmentExpressionSyntax assignment)
+        {
+            var tabs = new List<string>();
+
+            // Find TabControl.TabPages.Add calls (e.g., "tabControl1.TabPages.Add("Tab 1");")
+            var tabAdditions = assignment.Parent?
+                .DescendantNodes()
+                .OfType<InvocationExpressionSyntax>()
+                .Where(i => i.Expression.ToString().EndsWith(".TabPages.Add"));
+
+            foreach (var addition in tabAdditions ?? Enumerable.Empty<InvocationExpressionSyntax>())
+            {
+                var tab = addition.ArgumentList.Arguments.FirstOrDefault()?.ToString().Trim('"');
+                if (!string.IsNullOrEmpty(tab))
+                {
+                    tabs.Add(tab);
+                }
+            }
+
+            return tabs;
+        }
+
+        private static string FindSelectedTab(AssignmentExpressionSyntax assignment)
+        {
+            // Find SelectedTab assignment (e.g., "tabControl1.SelectedTab = "Tab 1";")
+            var selectedTabAssignment = assignment.Parent?
+                .DescendantNodes()
+                .OfType<AssignmentExpressionSyntax>()
+                .FirstOrDefault(a => a.Left.ToString().EndsWith(".SelectedTab"));
+
+            return selectedTabAssignment?.Right.ToString() ?? "UnknownSelectedTab";
+        }
+
+        private static string FindDateTimePickerValue(AssignmentExpressionSyntax assignment)
+        {
+            // Find Value assignment (e.g., "dateTimePicker1.Value = DateTime.Now;")
+            var valueAssignment = assignment.Parent?
+                .DescendantNodes()
+                .OfType<AssignmentExpressionSyntax>()
+                .FirstOrDefault(a => a.Left.ToString().EndsWith(".Value"));
+
+            return valueAssignment?.Right.ToString() ?? "DateTime.Now";
+        }
+
+        private static string FindDateTimePickerFormat(AssignmentExpressionSyntax assignment)
+        {
+            // Find Format assignment (e.g., "dateTimePicker1.Format = DateTimePickerFormat.Short;")
+            var formatAssignment = assignment.Parent?
+                .DescendantNodes()
+                .OfType<AssignmentExpressionSyntax>()
+                .FirstOrDefault(a => a.Left.ToString().EndsWith(".Format"));
+
+            return formatAssignment?.Right.ToString() ?? "DateTimePickerFormat.Short";
+        }
+
+        private static string FindTextBoxText(AssignmentExpressionSyntax assignment)
+        {
+            // Find Text assignment (e.g., "textBox1.Text = "Hello";")
+            var textAssignment = assignment.Parent?
+                .DescendantNodes()
+                .OfType<AssignmentExpressionSyntax>()
+                .FirstOrDefault(a => a.Left.ToString().EndsWith(".Text"));
+
+            return textAssignment?.Right.ToString() ?? "string.Empty";
+        }
+
+        private static bool FindTextBoxMultiline(AssignmentExpressionSyntax assignment)
+        {
+            // Find Multiline assignment (e.g., "textBox1.Multiline = true;")
+            var multilineAssignment = assignment.Parent?
+                .DescendantNodes()
+                .OfType<AssignmentExpressionSyntax>()
+                .FirstOrDefault(a => a.Left.ToString().EndsWith(".Multiline"));
+
+            return multilineAssignment?.Right.ToString() == "true";
+        }
+
+        private static bool FindCheckBoxChecked(AssignmentExpressionSyntax assignment)
+        {
+            // Find Checked assignment (e.g., "checkBox1.Checked = true;")
+            var checkedAssignment = assignment.Parent?
+                .DescendantNodes()
+                .OfType<AssignmentExpressionSyntax>()
+                .FirstOrDefault(a => a.Left.ToString().EndsWith(".Checked"));
+
+            return checkedAssignment?.Right.ToString() == "true";
+        }
+
+        private static string FindCheckBoxText(AssignmentExpressionSyntax assignment)
+        {
+            // Find Text assignment (e.g., "checkBox1.Text = "Enable Feature";")
+            var textAssignment = assignment.Parent?
+                .DescendantNodes()
+                .OfType<AssignmentExpressionSyntax>()
+                .FirstOrDefault(a => a.Left.ToString().EndsWith(".Text"));
+
+            return textAssignment?.Right.ToString() ?? "string.Empty";
+        }
+
+        private static bool FindRadioButtonChecked(AssignmentExpressionSyntax assignment)
+        {
+            // Find Checked assignment (e.g., "radioButton1.Checked = true;")
+            var checkedAssignment = assignment.Parent?
+                .DescendantNodes()
+                .OfType<AssignmentExpressionSyntax>()
+                .FirstOrDefault(a => a.Left.ToString().EndsWith(".Checked"));
+
+            return checkedAssignment?.Right.ToString() == "true";
+        }
+
+        private static string FindRadioButtonText(AssignmentExpressionSyntax assignment)
+        {
+            // Find Text assignment (e.g., "radioButton1.Text = "Option 1";")
+            var textAssignment = assignment.Parent?
+                .DescendantNodes()
+                .OfType<AssignmentExpressionSyntax>()
+                .FirstOrDefault(a => a.Left.ToString().EndsWith(".Text"));
+
+            return textAssignment?.Right.ToString() ?? "string.Empty";
+        }
+
+        private static int FindProgressBarValue(AssignmentExpressionSyntax assignment)
+        {
+            // Find Value assignment (e.g., "progressBar1.Value = 50;")
+            var valueAssignment = assignment.Parent?
+                .DescendantNodes()
+                .OfType<AssignmentExpressionSyntax>()
+                .FirstOrDefault(a => a.Left.ToString().EndsWith(".Value"));
+
+            return int.TryParse(valueAssignment?.Right.ToString(), out var value) ? value : 0;
+        }
+
+        private static int FindProgressBarMaximum(AssignmentExpressionSyntax assignment)
+        {
+            // Find Maximum assignment (e.g., "progressBar1.Maximum = 100;")
+            var maximumAssignment = assignment.Parent?
+                .DescendantNodes()
+                .OfType<AssignmentExpressionSyntax>()
+                .FirstOrDefault(a => a.Left.ToString().EndsWith(".Maximum"));
+
+            return int.TryParse(maximumAssignment?.Right.ToString(), out var maximum) ? maximum : 100;
+        }
+
     }
 
     public class ControlInfo

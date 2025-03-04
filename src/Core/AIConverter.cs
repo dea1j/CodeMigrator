@@ -30,6 +30,12 @@ namespace Core
             - For ComboBox controls, use a Blazor Dropdown component with items and selected item binding.
             - For TreeView controls, use a Blazor TreeView component with nodes and selected node binding.
             - For ListView controls, use a Blazor Table or List component with items, columns, and selected item binding.
+            - For TabControl controls, use a Blazor Tabs component with tabs and selected tab binding.
+            - For DateTimePicker controls, use a Blazor DatePicker component with value and format binding.
+            - For TextBox controls, use a Blazor Input or TextArea component with text binding.
+            - For CheckBox controls, use a Blazor Checkbox component with checked state and text binding.
+            - For RadioButton controls, use a Blazor RadioButton component with checked state and text binding.
+            - For ProgressBar controls, use a Blazor ProgressBar component with value and maximum binding.
             - Do not include any explanations, comments, or boilerplate code in the output.
             - Generate only the Razor component code.
             - Don't take this as a tutorial. It is a real project.
