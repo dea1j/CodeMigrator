@@ -14,15 +14,25 @@ namespace Core
             _ollama = new OllamaApiClient("http://localhost:11434");
         }
 
-        public async Task<string> ConvertToBlazorAsync(string winFormsCode)
+        public async Task<string> ConvertToBlazorAsync(List<ControlInfo> controls)
         {
             var prompt = $@"
-        Convert this WinForms code to a Blazor Razor component. 
-        Use modern syntax and components.
-        Input code:
-        {winFormsCode}";
+            Convert the following WinForms controls into a single Blazor Razor component. 
+            Use modern syntax and components. Do not include explanations, comments, or boilerplate code.
+            Generate only the Razor component code.
 
-          
+            Controls to convert:
+            {string.Join("\n", controls.Select(c => $"{c.Type} {c.Name} (Parent: {c.Parent})"))}
+
+            Specific instructions:
+            - Combine all controls into a single Blazor component.
+            - Preserve the hierarchy of controls (e.g., buttons inside panels).
+            - For ComboBox controls, use a Blazor Dropdown component with items and selected item binding.
+            - Do not include any explanations, comments, or boilerplate code in the output.
+            - Generate only the Razor component code.
+            - Don't take this as a tutorial. It is a real project.
+        ";
+
             // Use GenerateAsync for code generation
             var request = new GenerateRequest
             {
@@ -43,7 +53,7 @@ namespace Core
                     }
                 }
 
-                // Filter out unwanted messages (e.g., "Converting to blazor...")
+                // Filter out unwanted messages
                 var generatedCode = fullResponse.ToString();
                 if (generatedCode.Contains("Note that in Blazor"))
                 {

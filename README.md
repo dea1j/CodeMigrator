@@ -7,9 +7,9 @@ A powerful command-line tool that automatically converts legacy **WinForms** app
 ## ✨ Features
 
 - 🖥 **Convert Legacy WinForms Code** → Transforms Windows Forms UI controls into Blazor components.
-- 🤖 **AI-Powered Conversion** → Uses LLMs (e.g., CodeLlama, DeepSeek) for modern .NET migration.
+- 🤖 **AI-Powered Conversion** → Uses LLM (CodeLlama) for modern .NET migration.
 - 📁 **Batch Processing** → Convert entire projects or single files.
-- ⚡ **Lightweight & Fast** → Built with `.NET`, ensuring high performance.
+- ⚡ **Lightweight & Fast** → Built with `.NET 8`, ensuring high performance.
 - 📂 **Custom Output Directory** → Save converted files to your desired location.
 
 ---
@@ -17,8 +17,8 @@ A powerful command-line tool that automatically converts legacy **WinForms** app
 ## 🚀 Getting Started
 
 ### 1️⃣ Prerequisites
-- .NET SDK 6.0 or later
-- AI Model (e.g., **CodeLlama** via [Ollama](https://ollama.com) or **DeepSeek**)
+- .NET SDK 8.0 or later
+- **CodeLlama AI** installed locally via [Ollama](https://ollama.com)
 
 ### 2️⃣ Installation
 Clone the repository:
@@ -98,3 +98,4 @@ Pull requests are welcome! If you find any issues or want to improve the convers
 ---
 
 ⭐ If you like this project, don't forget to **star** this repository!
+
